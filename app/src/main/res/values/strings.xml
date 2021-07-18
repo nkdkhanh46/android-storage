@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Android Storage</string>
+    <string name="button_pick_image">Pick image</string>
+    <string name="button_capture_photo">Capture photo</string>
+    <string name="message_permission_denied">All requested permissions need to be granted to use this feature</string>
+    <string name="message_capture_photo_failed">Can\'t capture the photo. Please try again</string>
+    <string name="message_save_picked_image_failed">Can\'t save selected image</string>
 </resources>
