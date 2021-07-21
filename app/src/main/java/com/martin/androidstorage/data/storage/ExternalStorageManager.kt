@@ -1,8 +1,9 @@
-package com.martin.androidstorage
+package com.martin.androidstorage.data.storage
 
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import androidx.core.content.FileProvider
 import java.io.*
 import java.lang.Exception
 import java.lang.RuntimeException

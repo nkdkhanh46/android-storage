@@ -1,9 +1,7 @@
-package com.martin.androidstorage
+package com.martin.androidstorage.ui
 
 import android.Manifest
-import android.app.Activity
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
@@ -11,9 +9,13 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
+import com.martin.androidstorage.data.storage.ExternalStorageManager
+import com.martin.androidstorage.utils.IntentUtils
+import com.martin.androidstorage.R
 import com.martin.androidstorage.databinding.ActivityMainBinding
+import com.martin.androidstorage.extensions.toSharedUri
 import java.io.File
+import java.lang.RuntimeException
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,21 +32,36 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupViewEvents() {
         binding.btPickImage.setOnClickListener {
-            openPhotoPicker()
+            openImagePicker()
         }
         binding.btCapturePhoto.setOnClickListener {
             openCamera()
         }
+        binding.btShare.setOnClickListener {
+            showImageSharingSelection()
+        }
+    }
+
+    private fun showImageSharingSelection() {
+        val imageUri = imageUri ?: return
+
+        try {
+            val chooser = IntentUtils.createImageSharingChooserIntent(
+                imageUri, getString(R.string.share_image_chooser_title)
+            )
+            startActivity(chooser)
+        } catch (ex: RuntimeException) {
+            showMessage(R.string.message_share_image_no_app)
+        }
     }
 
     private val photoPickerLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            imageUri = result.data?.data
-            updatePreviewImage()
-            saveImage()
-        }
+        ActivityResultContracts.GetContent()
+    ) { resultUri ->
+        imageUri = resultUri ?: return@registerForActivityResult
+
+        updatePreviewImage()
+        saveImage()
     }
 
     private fun saveImage() {
@@ -93,12 +110,8 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-    private fun openPhotoPicker() {
-        val intent = Intent().apply {
-            action = Intent.ACTION_GET_CONTENT
-            type = "image/*"
-        }
-        photoPickerLauncher.launch(intent)
+    private fun openImagePicker() {
+        photoPickerLauncher.launch(IntentUtils.MIME_DATA_TYPE_IMAGE)
     }
 
     private fun getImagePreviewName() = "preview_image_${System.currentTimeMillis()}.jpg"
@@ -118,11 +131,7 @@ class MainActivity : AppCompatActivity() {
 
         val fileName = getImagePreviewName()
         val dir = externalStorageManager.getImageDir(this)
-        imageUri = FileProvider.getUriForFile(
-            this,
-            getString(R.string.app_file_authorities),
-            File(dir, fileName)
-        )
+        imageUri = File(dir, fileName).toSharedUri(this)
         capturePhotoLauncher.launch(imageUri)
     }
 

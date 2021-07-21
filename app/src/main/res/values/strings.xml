@@ -5,4 +5,7 @@
     <string name="message_permission_denied">All requested permissions need to be granted to use this feature</string>
     <string name="message_capture_photo_failed">Can\'t capture the photo. Please try again</string>
     <string name="message_save_picked_image_failed">Can\'t save selected image</string>
+    <string name="button_share">Share</string>
+    <string name="share_image_chooser_title">Choose an app</string>
+    <string name="message_share_image_no_app">Your device has no app for sharing this image</string>
 </resources>
